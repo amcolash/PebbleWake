@@ -1,0 +1,24 @@
+{
+  "name": "PebbleWake",
+  "version": "1.0.0",
+  "description": "Simple wake on lan for pebble (server-side)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amcolash/PebbleWake.git"
+  },
+  "author": "Andrew McOlash",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amcolash/PebbleWake/issues"
+  },
+  "dependencies": {
+    "console-stamp": "^0.1.6",
+    "express": "^4.12.4",
+    "wake_on_lan": "0.0.4"
+  }
+}
