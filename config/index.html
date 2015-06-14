@@ -40,13 +40,13 @@
           <legend>Enter your information for your computer:</legend>
 
           <label for="name">Computer Name</label>
-          <input type="text" name="name" id="name" class="custom" />
+          <input type="text" name="name" id="name" class="custom" required/>
           <label for="mac">Mac Address</label>
-          <input type="text" name="mac" id="mac" class="custom" />
-          <label for="ip">IP Address</label>
-          <input type="number" name="ip" id="ip" class="custom" />
+          <input type="text" name="mac" id="mac" class="custom" required/>
+          <label for="ip">IP Address/Domain</label>
+          <input type="text" name="ip" id="ip" class="custom" required/>
           <label for="name">WOL Port</label>
-          <input type="range" name="port" id="port" min="0" max="255" class="custom" />
+          <input type="range" name="port" id="port" min="0" max="65535" value="9" class="custom" required/>
 
         </fieldset>
       </div>
