@@ -110,14 +110,12 @@ $().ready(function () {
     }
   } else if (getCookie("options")) {
     var options = JSON.parse(getCookie("options"));
-    for (i = 0; i < options.length; i++) {
-      name = Object.keys(options)[i];
-      value = options[i];
+    $.each(options, function(name, value) {
       if (value === 'true' || value === 'false' ) {
         $('#' + name).prop('checked', (value === 'true') ? true : false).checkboxradio('refresh');
       } else {
         $("#" + name).val(value);
       }
-    }
+    });
   }
 });
