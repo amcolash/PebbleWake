@@ -7,21 +7,73 @@
 var UI = require('ui');
 var ajax = require('ajax');
 
-var url = "pi.amcolash.com";
+var serverUrl = 'http://pi.amcolash.com';
 var port = 4000;
+var configUrl = 'http://pi.amcolash.com/pebblewake/index.html';
 
-var computers = [
-  {
-    title: 'Andrew PC',
-    mac: 'FC:AA:14:96:01:E7',
-    ip: 'pi.amcolash.com',
-    port: '9'
+var options = [{}];
+
+Pebble.addEventListener('showConfiguration', function(e) {
+  // Show config page
+  console.log(configUrl + getUrl());
+  Pebble.openURL(configUrl + getUrl());
+});
+
+Pebble.addEventListener('webviewclosed',
+  function(e) {
+    var configuration = JSON.parse(decodeURIComponent(e.response));
+//     console.log('Configuration window returned: ', JSON.stringify(configuration));
+    options = [{}];
+    for(var key in configuration) {
+      var attrName = key;
+      var attrValue = configuration[key];
+      
+      console.log(attrName + ": " + attrValue);
+      options[0][attrName] = attrValue;
+    }
+    setOptions(options);
+//     console.log(JSON.stringify(options));
   }
-];
+);
+
+function getUrl() {
+  var url = '?';
+  if (options) {
+    for(var key in options[0]) {
+      console.log(key + ": " + options[0][key]);
+      url += key + "=" + options[0][key] + '&';
+    }
+  }
+//   console.log(url);
+  return url;
+}
+
+function getOptions() {
+  options = JSON.parse(localStorage.getItem('options'));
+//   console.log(JSON.stringify(options));
+}
+
+function setOptions() {
+  clearOptions();
+  localStorage.setItem('options', JSON.stringify(options));
+}
+
+function clearOptions() {
+  localStorage.clear();
+}
+
+getOptions();
+
+var titles = [];
+if (options !== null) {
+  for (var i = 0; i < options.length; i++) {
+    titles.push({title: options[i].name});
+  }
+}
 
 var menu = new UI.Menu({
   sections: [{
-    items: computers
+    items: titles
   }]
 });
 
@@ -29,7 +81,7 @@ menu.on('select', function(e) {
   console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
   console.log('The item is titled "' + e.item.title + '"');
   
-  var computer = computers[e.itemIndex];
+  var computer = options[e.itemIndex];
   console.log(JSON.stringify(computer));
   
   var card = new UI.Card({
@@ -39,7 +91,7 @@ menu.on('select', function(e) {
   
   ajax(
     {
-      url: url + ":" + port,
+      url: serverUrl + ":" + port,
       type: 'json',
       medthod: 'put',
       headers: computer
