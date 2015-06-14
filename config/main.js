@@ -42,7 +42,7 @@ function getQueryParam(variable, defaultValue) {
   var query = location.search.substring(1);
   var vars = query.split('&');
   for (var i = 0; i < vars.length; i++) {
-    var pair = vars[i].split('=').replace('%20', ' ');
+    var pair = vars[i].split('=');
 
     // If the query variable parameter is found, decode it to use and return it for use
     if (pair[0] === variable) {
@@ -85,7 +85,7 @@ $().ready(function () {
       if (value === 'true' || value === 'false' ) {
         $('#' + name).prop('checked', (value === 'true') ? true : false).checkboxradio('refresh');
       } else {
-        $("#" + name).val(value);
+        $("#" + name).val(decodeURIComponent(value));
       }
 //      $("#" + [key]).val(obj[key]).slider("refresh");
     }
