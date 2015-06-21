@@ -11,7 +11,9 @@ var serverUrl = 'http://pi.amcolash.com';
 var port = 4000;
 var configUrl = 'http://pi.amcolash.com/pebblewake/index.html';
 
-var options = [{}];
+var options = [];
+var titles = [];
+var card, menu;
 
 Pebble.addEventListener('showConfiguration', function(e) {
   // Show config page
@@ -19,29 +21,28 @@ Pebble.addEventListener('showConfiguration', function(e) {
   Pebble.openURL(configUrl + getUrl());
 });
 
-Pebble.addEventListener('webviewclosed',
-  function(e) {
+Pebble.addEventListener('webviewclosed', function(e) {
+  if (e.response !== "") {
     var configuration = JSON.parse(decodeURIComponent(e.response));
-//     console.log('Configuration window returned: ', JSON.stringify(configuration));
+    //     console.log('Configuration window returned: ', JSON.stringify(configuration));
     options = [{}];
     for(var key in configuration) {
       var attrName = key;
       var attrValue = configuration[key];
-      
-      console.log(attrName + ": " + attrValue);
+
+//       console.log(attrName + ": " + attrValue);
       options[0][attrName] = attrValue;
     }
     setOptions(options);
-//     console.log(JSON.stringify(options));
+    //     console.log(JSON.stringify(options));
   }
-);
+});
 
 function getUrl() {
   var url = '?';
   if (options) {
     for(var key in options[0]) {
-      console.log(key + ": " + options[0][key]);
-      url += key + "=" + options[0][key] + '&';
+      url += (key + '=' + options[0][key] + '&');
     }
   }
 //   console.log(url);
@@ -50,28 +51,48 @@ function getUrl() {
 
 function getOptions() {
   options = JSON.parse(localStorage.getItem('options'));
+  
+  card.hide();
+  menu.hide();
+  
+  if (options !== null) {
+    if (options.length > 0) {
+      titles = [];
+      for (var i = 0; i < options.length; i++) {
+        titles.push({title: options[i].name});
+      }
+      menu.items(0, titles);
+      menu.show();
+    } else {
+      card.show();
+    }
+  } else {
+    card.show();
+  }
 //   console.log(JSON.stringify(options));
 }
 
 function setOptions() {
-  clearOptions();
+  localStorage.clear();
   localStorage.setItem('options', JSON.stringify(options));
+  getOptions();
 }
 
 function clearOptions() {
   localStorage.clear();
+  options = [];
+  titles = [];
 }
 
-getOptions();
+card = new UI.Card({
+  title: 'Please set up WOL via the app configuration',
+  action: {
+    select: 'images/close.png'
+  },
+  icon: 'images/close.png'
+});
 
-var titles = [];
-if (options !== null) {
-  for (var i = 0; i < options.length; i++) {
-    titles.push({title: options[i].name});
-  }
-}
-
-var menu = new UI.Menu({
+menu = new UI.Menu({
   sections: [{
     items: titles
   }]
@@ -84,7 +105,7 @@ menu.on('select', function(e) {
   var computer = options[e.itemIndex];
   console.log(JSON.stringify(computer));
   
-  var card = new UI.Card({
+  card = new UI.Card({
     title: 'Attempting to wake up...'
   });
   card.show();
@@ -92,22 +113,22 @@ menu.on('select', function(e) {
   ajax(
     {
       url: serverUrl + ":" + port,
-      type: 'json',
-      medthod: 'put',
+      method: 'put',
       headers: computer
     },
-    function(success) {
+    function(data) {
       // Success!
       console.log('Successfully sent wake up!');
       card.title('Successfully sent wake up');
     },
     function(error) {
       // Failure!
-      console.log('Failed waking somewhere: ' + error);
+      console.log('Failed waking: ' + error);
       card.title('Something went wrong :(');
       card.body(error);
     }
   );
 });
 
-menu.show();
+// Main app init
+getOptions();
